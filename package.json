@@ -1,0 +1,23 @@
+{
+  "name": "dockerworkenv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/batleforc/DockerWorkEnv.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/batleforc/DockerWorkEnv/issues"
+  },
+  "homepage": "https://github.com/batleforc/DockerWorkEnv#readme",
+  "private": true,
+  "dependencies": {
+    "node-docker-api": "^1.1.22"
+  }
+}
