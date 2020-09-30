@@ -8,3 +8,6 @@ Index.js (Nom provisoir) Pull l'image *"ruudud/devdns"* qui sert de serveur DNS 
 Ce serveur Dns local (quand il ne peux pas répondre) fait tomber les entrer sur celle correspondant avec le DNS *8.8.8.8* (Dns de Google).
 Puis il Start le container baser sur l'image *"ruudud/devdns"*.
 Le container est relier aux docker.sock de la machine Hôte et scan les container en les reliant aux hostname corespondant.
+
+
+https://github.com/apocas/dockerode
