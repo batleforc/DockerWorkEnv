@@ -18,7 +18,6 @@
   "homepage": "https://github.com/batleforc/DockerWorkEnv#readme",
   "private": true,
   "dependencies": {
-    "dockerode": "^3.2.1",
-    "node-docker-api": "^1.1.22"
+    "dockerode": "^3.2.1"
   }
 }
