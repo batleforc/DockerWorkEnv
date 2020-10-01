@@ -1,5 +1,6 @@
 var Docker = require('dockerode');
-const { default: container } = require('node-docker-api/lib/container');
+var os = require('os');
+const {spawn,exec} = require('child_process');
 
 module.exports=class DevEnvDocker {
     constructor(SocketPath){
@@ -12,12 +13,37 @@ module.exports=class DevEnvDocker {
         })
 
     }
+    init(){console.log(`
+    /$$$$$$$                      /$$                           /$$$$$$$                      
+   | $$__  $$                    | $$                          | $$__  $$                     
+   | $$  \ $$  /$$$$$$   /$$$$$$$| $$   /$$  /$$$$$$   /$$$$$$ | $$  \ $$  /$$$$$$  /$$    /$$
+   | $$  | $$ /$$__  $$ /$$_____/| $$  /$$/ /$$__  $$ /$$__  $$| $$  | $$ /$$__  $$|  $$  /$$/
+   | $$  | $$| $$  \ $$| $$      | $$$$$$/ | $$$$$$$$| $$  \__/| $$  | $$| $$$$$$$$ \  $$/$$/ 
+   | $$  | $$| $$  | $$| $$      | $$_  $$ | $$_____/| $$      | $$  | $$| $$_____/  \  $$$/  
+   | $$$$$$$/|  $$$$$$/|  $$$$$$$| $$ \  $$|  $$$$$$$| $$      | $$$$$$$/|  $$$$$$$   \  $/   
+   |_______/  \______/  \_______/|__/  \__/ \_______/|__/      |_______/  \_______/    \_/    
+                                                                                              
+                                                                                              
+                                                                                              
+   `)}
     pull(ImageName,tag='latest'){
-        return this.docker.pull(`${ImageName}:${tag}`)
-            .then((err,stream)=>{
-                console.log(stream);
-                return;
-            })
+        const promise1 = new Promise((resolve,reject)=>{
+            this.docker.pull(`${ImageName}:${tag}`, (err, stream) => {
+                this.docker.modem.followProgress(stream, onFinished, onProgress);
+        
+                function onFinished(err, output) {
+                    if (!err) {
+                        console.log('\nDone pulling.');
+                    } else {
+                        console.log(err);
+                    }
+                    resolve();
+                }
+                function onProgress(event) {
+                }
+            });
+        })
+        return promise1;
     }
     CreateAndStart(ImageName,ContainerName,Port){
         this.docker.container.create({
@@ -29,23 +55,25 @@ module.exports=class DevEnvDocker {
         .then(container=>container.start())
         .catch(error=>console.log(error))
     }
-    StartDnsServer(){
-
-        return this.pull(this.DockerDns)
-            .then(()=>this.FindIndexContainerByName("dockerdns").then((value)=>{
-                setTimeout(()=>{
+    async StartDnsServer(){
+        await this.pull(this.DockerDns).then(()=>{
+            this.FindIndexContainerByName("dockerdns").then((value)=>{
                 if(value!=-1)
-                    
                         return this.StopAndRemoveDnsServer()
                         .then(()=>{
                             this.docker.createContainer({
                                 Image : this.DockerDns,
                                 name: "dockerdns",
                                 HostConfig: {
-                                    Binds : ["/var/run/docker.sock:/var/run/docker.sock"]
+                                    Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
+                                    PortBindings: {
+                                        '53/udp': [{
+                                            HostPort: '53',
+                                        }],
+                                    },
                                 },
                                 Hostname : "DockerDns",
-                                Port : {"50:50/udp": {}}
+
                             })
                         }).then((container)=>{
                                 container.start();
@@ -57,13 +85,40 @@ module.exports=class DevEnvDocker {
                         Binds : ["/var/run/docker.sock:/var/run/docker.sock"]
                     },
                     Hostname : "DockerDns",
-                    Port : {"50:50/udp": {}}
+                    ExposedPorts : {"53/udp":{}}
                 }).then((container)=>{
                     container.start();
-                    
                 })
-            },100)
-            }))
+            })
+        })
+        
+    }
+    async LinkDns(IpAddress){
+        this.init()
+        console.log(`Warning: If you are under wsl env please manualy change the dns server to ${IpAddress}, Your Os is recognise as ${process.platform}.`);
+        console.log(`Welcome ${os.userInfo().username}`)
+        if(process.platform=="linux"){
+            exec(`echo nameserver ${IpAddress} > /etc/resolv.conf`,(error)=>{
+                if(error){
+                    console.log("You need to try again with Sudo Right")
+                    console.log(error)
+                }
+            })
+            exec('/etc/init.d/networking restart',(error)=>{
+                if(error) console.log(error)
+            })
+            exec('ping dockerdns.test',(error)=>{
+                if(error) console.log(error)
+            })
+        }
+        else if(process.platform=="darwin"){
+
+        }
+        else if(process.platform.includes("win")){
+            
+        }else{
+            console.log("Your opperating system isn't supported yet")
+        }
     }
     FindIndexContainerByName(Name){
         return this.docker.listContainers()
@@ -100,6 +155,14 @@ module.exports=class DevEnvDocker {
                 if(ID==-1)return;
                 var swap=this.docker.getContainer(ID);
                 swap.remove()
+                return swap;
+            })
+    }
+    GetContainer(Name){
+        return this.GetContainerID(Name)
+            .then((ID)=>{
+                if(ID==-1) return;
+                var swap = this.docker.getContainer(ID);
                 return swap;
             })
     }
