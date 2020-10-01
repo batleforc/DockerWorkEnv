@@ -119,18 +119,17 @@ module.exports=class DevEnvDocker {
         console.log(`Warning: If you are under wsl env please manualy change the dns server to ${IpAddress}, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform=="linux"){
-            exec(`echo dns-nameserver ${IpAddress} > /etc/resolv.conf`,(error)=>{
+            exec(`echo nameserver ${IpAddress} >> /etc/resolv.conf`,(error)=>{
                 if(error){
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
+                }else{
+                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                        if(error) console.log(error)
+                    })
                 }
             })
-            exec('/etc/init.d/networking restart',(error)=>{
-                if(error) console.log(error)
-            })
-            exec('ping dockerdns.test',(error)=>{
-                if(error) console.log(error)
-            })
+            
         }
         else if(process.platform=="darwin"){
 
