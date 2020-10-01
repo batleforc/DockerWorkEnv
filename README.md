@@ -18,10 +18,12 @@ Change Dns Mac : https://osxdaily.com/2015/06/02/change-dns-command-line-mac-os-
 
 Change Dns Windows : https://tweaks.com/windows/40339/configure-ip-address-and-dns-from-command-line/
 
+127.0.0.1 *.localhost in c:\windows\System32\drivers\etc\hosts + traefic
+
 Change Dns Linux : https://support.strongvpn.com/hc/en-us/articles/360038982774-How-to-Change-DNS-in-Linux
 
 Nodejs Exec cmd : https://nodejs.org/api/child_process.html
 
 Nodejs know Current Os : https://stackoverflow.com/questions/8683895/how-do-i-determine-the-current-operating-system-with-node-js
 
-
+Voir pour passer toute les version sous traefic.

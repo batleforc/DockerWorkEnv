@@ -100,7 +100,7 @@ module.exports=class DevEnvDocker {
                             '53/udp': [{
                                 HostPort: '53',
                             }],
-                        },
+                        }
                     },
                     Hostname : "DockerDns",
                     ExposedPorts : {"53/udp":{}},
