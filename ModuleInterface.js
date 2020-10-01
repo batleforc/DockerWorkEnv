@@ -29,8 +29,14 @@ module.exports=class DevEnvDocker {
     pull(ImageName,tag='latest'){
         const promise1 = new Promise((resolve,reject)=>{
             this.docker.pull(`${ImageName}:${tag}`, (err, stream) => {
-                this.docker.modem.followProgress(stream, onFinished, onProgress);
-        
+                if(err) return reject(err);
+                try{
+                    this.docker.modem.followProgress(stream, onFinished, onProgress);
+                }catch(test){
+                    console.log(test)
+                    reject()
+                }
+                
                 function onFinished(err, output) {
                     if (!err) {
                         console.log('\nDone pulling.');
@@ -57,38 +63,45 @@ module.exports=class DevEnvDocker {
     }
     async StartDnsServer(){
         await this.pull(this.DockerDns).then(()=>{
-            this.FindIndexContainerByName("dockerdns").then((value)=>{
-                if(value!=-1)
-                        return this.StopAndRemoveDnsServer()
-                        .then(()=>{
-                            this.docker.createContainer({
-                                Image : this.DockerDns,
-                                name: "dockerdns",
-                                HostConfig: {
-                                    Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
-                                    PortBindings: {
-                                        '53/udp': [{
-                                            HostPort: '53',
-                                        }],
-                                    },
+            return this.FindIndexContainerByName("dockerdns").then((value)=>{
+                if(value!=-1){
+                    return this.StopAndRemoveDnsServer()
+                    .then(()=>{
+                        this.docker.createContainer({
+                            Image : this.DockerDns,
+                            name: "dockerdns",
+                            HostConfig: {
+                                Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
+                                PortBindings: {
+                                    '53/udp': [{
+                                        HostPort: '53',
+                                    }],
                                 },
-                                Hostname : "DockerDns",
+                            },
+                            Hostname : "DockerDns",
 
-                            })
-                        }).then((container)=>{
-                                container.start();
                         })
-                return this.docker.createContainer({
+                    }).then((container)=>{
+                            container.start();
+                    })
+                }
+                else
+                {return this.docker.createContainer({
                     Image : this.DockerDns,
                     name: "dockerdns",
                     HostConfig: {
-                        Binds : ["/var/run/docker.sock:/var/run/docker.sock"]
+                        Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
+                        PortBindings: {
+                            '53/udp': [{
+                                HostPort: '53',
+                            }],
+                        },
                     },
                     Hostname : "DockerDns",
                     ExposedPorts : {"53/udp":{}}
                 }).then((container)=>{
                     container.start();
-                })
+                })}
             })
         })
         
@@ -98,7 +111,7 @@ module.exports=class DevEnvDocker {
         console.log(`Warning: If you are under wsl env please manualy change the dns server to ${IpAddress}, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform=="linux"){
-            exec(`echo nameserver ${IpAddress} > /etc/resolv.conf`,(error)=>{
+            exec(`echo dns-nameserver ${IpAddress} > /etc/resolv.conf`,(error)=>{
                 if(error){
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
