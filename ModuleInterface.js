@@ -3,9 +3,10 @@ var os = require('os');
 const {spawn,exec} = require('child_process');
 
 module.exports=class DevEnvDocker {
-    constructor(SocketPath){
+    constructor(SocketPath,suffix){
         this.docker = new Docker({socketPath:SocketPath});
         this.DockerDns="ruudud/devdns"
+        this.DnsSuffix=suffix;
         this.promisifyStream = (stream) => new Promise((resolve, reject) => { 
             stream.on('data', (d) => console.log(d.toString()))
             stream.on('end', resolve)
@@ -29,12 +30,12 @@ module.exports=class DevEnvDocker {
     pull(ImageName,tag='latest'){
         const promise1 = new Promise((resolve,reject)=>{
             this.docker.pull(`${ImageName}:${tag}`, (err, stream) => {
-                if(err) return reject(err);
+                if(err) return resolve(err);
                 try{
                     this.docker.modem.followProgress(stream, onFinished, onProgress);
                 }catch(test){
                     console.log(test)
-                    reject()
+                    resolve()
                 }
                 
                 function onFinished(err, output) {
@@ -79,6 +80,10 @@ module.exports=class DevEnvDocker {
                                 },
                             },
                             Hostname : "DockerDns",
+                            ExposedPorts : {"53/udp":{}},
+                            Env:[
+                                `DNS_DOMAIN=${this.DnsSuffix}`
+                            ]
 
                         })
                     }).then((container)=>{
@@ -98,7 +103,10 @@ module.exports=class DevEnvDocker {
                         },
                     },
                     Hostname : "DockerDns",
-                    ExposedPorts : {"53/udp":{}}
+                    ExposedPorts : {"53/udp":{}},
+                    Env:[
+                        `DNS_DOMAIN=${this.DnsSuffix}`
+                    ]
                 }).then((container)=>{
                     container.start();
                 })}
