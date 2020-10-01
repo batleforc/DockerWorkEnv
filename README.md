@@ -10,6 +10,16 @@ Puis il Start le container baser sur l'image *"ruudud/devdns"*.
 Le container est relier aux docker.sock de la machine Hôte et scan les container en les reliant aux hostname corespondant.
 
 
-https://github.com/apocas/dockerode
+Nodejs Access Docker : https://github.com/apocas/dockerode
 
-https://github.com/ruudud/devdns
+Container local dns : https://github.com/ruudud/devdns
+
+Change Dns Mac : https://osxdaily.com/2015/06/02/change-dns-command-line-mac-os-x/
+
+Change Dns Windows : https://tweaks.com/windows/40339/configure-ip-address-and-dns-from-command-line/
+
+Nodejs Exec cmd : https://nodejs.org/api/child_process.html
+
+Nodejs know Current Os : https://stackoverflow.com/questions/8683895/how-do-i-determine-the-current-operating-system-with-node-js
+
+
