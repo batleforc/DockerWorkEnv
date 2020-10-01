@@ -5,4 +5,4 @@ var DevEnvDocker = require('./ModuleInterface');
 
 var Dev= new DevEnvDocker('/var/run/docker.sock');
 Dev.StartDnsServer()
-Dev.LinkDns("172.17.0.3")
+//Dev.LinkDns("172.17.0.3")
