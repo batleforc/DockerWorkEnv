@@ -194,7 +194,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -207,7 +207,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -219,7 +219,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
