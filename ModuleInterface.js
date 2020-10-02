@@ -201,11 +201,29 @@ module.exports=class DevEnvDocker {
             })
             
         }
-        else if(process.platform=="darwin"){
-
+        else if(process.platform.includes("darwin")){
+            exec(`echo echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
+                if(error){
+                    console.log("You need to try again with Sudo Right")
+                    console.log(error)
+                }else{
+                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                        if(error) console.log(error)
+                    })
+                }
+            })
         }
         else if(process.platform.includes("win")){
-            
+            exec('echo 127.0.0.1 *.localhost >> c:\\Windows\\System32\\drivers\\etc\\hosts',(error)=>{
+                if(error){
+                    console.log("You need to try again with Sudo Right")
+                    console.log(error)
+                }else{
+                    exec(`ping ${"dockerdns"}.${this.DnsSuffix}`,(error)=>{
+                        if(error) console.log(error)
+                    })
+                }
+            })
         }else{
             console.log("Your opperating system isn't supported yet")
         }
