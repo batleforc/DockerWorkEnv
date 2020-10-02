@@ -26,4 +26,4 @@ Nodejs Exec cmd : https://nodejs.org/api/child_process.html
 
 Nodejs know Current Os : https://stackoverflow.com/questions/8683895/how-do-i-determine-the-current-operating-system-with-node-js
 
-Voir pour passer toute les version sous traefic.
+Voir pour uttiliser GULP
