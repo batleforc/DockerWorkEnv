@@ -3,9 +3,14 @@ var os = require('os');
 const {spawn,exec} = require('child_process');
 
 module.exports=class DevEnvDocker {
-    constructor(SocketPath,suffix){
+    constructor(SocketPath){
         this.docker = new Docker({socketPath:SocketPath});
+        this.socketPath=SocketPath;
         this.DockerDns="ruudud/devdns"
+        this.Traefikimg="traefik"
+        this.Traefikname="rp"
+        this.PortainerImg="portainer/portainer-ce"
+        this.PortainerName="portainer"
         this.DnsSuffix=suffix;
         this.promisifyStream = (stream) => new Promise((resolve, reject) => { 
             stream.on('data', (d) => console.log(d.toString()))
@@ -112,8 +117,76 @@ module.exports=class DevEnvDocker {
                 })}
             })
         })
-        
     }
+    async StartTraefik(){
+        this.init();
+        var value = await this.FindIndexContainerByName(this.Traefikname)
+        if(value!=-1) {console.log("Container already started");return;}
+        if(!await this.ImageExist(this.Traefikimg)) await this.pull(this.Traefikimg);
+        console.log("Creating Container")
+        await this.docker.createContainer({
+            Image:this.Traefikimg,
+            name:this.Traefikname,
+            HostConfig:{
+                Binds : [`${this.socketPath}:/var/run/docker.sock`,__dirname+'/traefik/traefik.yml:/etc/traefik/traefik.yml'],
+                PortBindings :{
+                    '80/tcp' :[{
+                        HostPort:'80'
+                    }],'8080/tcp' :[{
+                        HostPort:'8080'
+                    }],
+                }
+            },
+            ExposedPorts : {"8080/tcp":{},"80/tcp":{}},
+        }).catch((err)=>{
+            console.log("Error during the creation of the container")
+            console.log("Error : "+err)
+        })
+        .then((container)=>{
+            console.log("Starting Container")
+            container.start();
+        }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
+        .then(()=>console.log(`Traefik is ready to rock \nPlease go to http://localhost:8080`))
+    }
+    async StartPortainer(){
+        this.init();
+        var value = await this.FindIndexContainerByName(this.PortainerName)
+        if(value!=-1) {console.log("Container already started");return;}
+        if(!await this.ImageExist(this.PortainerImg)) await this.pull(this.PortainerImg);
+        this.docker.createVolume({
+            Name: "portainer_data"
+        })
+        console.log("Creating Container")
+        await this.docker.createContainer({
+                Image:this.PortainerImg,
+                name: this.PortainerName,
+                HostConfig: {
+                    Binds : [`${this.socketPath}:/var/run/docker.sock`],
+                    PortBindings: {
+                        '8000/tcp': [{
+                            HostPort: '8000',
+                        }],
+                        '9000/tcp': [{
+                            HostPort: '9000',
+                        }],
+                    },
+                },
+                Volumes:{
+                    "portainer_data/data":{}
+                },
+                ExposedPorts : {"9000/tcp":{},"8000/tcp":{}},
+        }).catch((err)=>{
+            console.log("Error during the creation of the container")
+            console.log("Error : "+err)
+        })
+        .then((container)=>{
+            console.log("Starting Container")
+            container.start();
+        }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
+        .then(()=>console.log(`Portainer is ready to rock \nPlease go to http://localhost:9000 or http://portainer.localhost if traefik is correctly configured\nPlease note that if it's the first time you may need to configure the container`))
+        console.log("test")
+    }
+
     async LinkDns(IpAddress){
         this.init()
         console.log(`Warning: If you are under wsl env please manualy change the dns server to ${IpAddress}, Your Os is recognise as ${process.platform}.`);
@@ -139,6 +212,17 @@ module.exports=class DevEnvDocker {
         }else{
             console.log("Your opperating system isn't supported yet")
         }
+    }
+
+    async ImageExist(name){
+        const value = await this.docker.listImages()
+        var exist=false;
+        value.forEach(element => {
+            if(String(element.RepoTags[0]).includes(name))
+            exist = true;
+        },this);
+        return exist
+        
     }
     FindIndexContainerByName(Name){
         return this.docker.listContainers()
