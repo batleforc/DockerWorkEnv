@@ -57,66 +57,21 @@ module.exports=class DevEnvDocker {
         })
         return promise1;
     }
-    CreateAndStart(ImageName,ContainerName,Port){
+    CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder){
         this.docker.container.create({
             Image : ImageName,
             name: String(ContainerName).toLowerCase(),
             Hostname : ContainerName,
-            Port : Port
+            ExposedPorts : ExposePort,
+            HostConfig:{
+                Binds:Folder,
+                PortBindings: BindingPort
+
+            }
+
         })
         .then(container=>container.start())
         .catch(error=>console.log(error))
-    }
-    async StartDnsServer(){
-        await this.pull(this.DockerDns).then(()=>{
-            return this.FindIndexContainerByName("dockerdns").then((value)=>{
-                if(value!=-1){
-                    return this.StopAndRemoveDnsServer()
-                    .then(()=>{
-                        this.docker.createContainer({
-                            Image : this.DockerDns,
-                            name: "dockerdns",
-                            HostConfig: {
-                                Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
-                                PortBindings: {
-                                    '53/udp': [{
-                                        HostPort: '53',
-                                    }],
-                                },
-                            },
-                            Hostname : "DockerDns",
-                            ExposedPorts : {"53/udp":{}},
-                            Env:[
-                                `DNS_DOMAIN=${this.DnsSuffix}`
-                            ]
-
-                        })
-                    }).then((container)=>{
-                            container.start();
-                    })
-                }
-                else
-                {return this.docker.createContainer({
-                    Image : this.DockerDns,
-                    name: "dockerdns",
-                    HostConfig: {
-                        Binds : ["/var/run/docker.sock:/var/run/docker.sock"],
-                        PortBindings: {
-                            '53/udp': [{
-                                HostPort: '53',
-                            }],
-                        }
-                    },
-                    Hostname : "DockerDns",
-                    ExposedPorts : {"53/udp":{}},
-                    Env:[
-                        `DNS_DOMAIN=${this.DnsSuffix}`
-                    ]
-                }).then((container)=>{
-                    container.start();
-                })}
-            })
-        })
     }
     async StartTraefik(){
         var value = await this.FindIndexContainerByName(this.Traefikname)
@@ -184,7 +139,7 @@ module.exports=class DevEnvDocker {
         .then(()=>console.log(`Portainer is ready to rock \nPlease go to http://localhost:9000 or http://portainer.localhost if traefik is correctly configured\nPlease note that if it's the first time you may need to configure the container`))
     }
 
-    async LinkDns(IpAddress){
+    async LinkDns(){
         this.init()
         console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
@@ -251,14 +206,6 @@ module.exports=class DevEnvDocker {
                     .then((Containers)=>Containers[Index].Id)
             })
     }
-    StopAndRemoveDnsServer(){
-        return this.GetContainerID("dockerdns")
-            .then((Id)=>{
-                if(Id==-1) return -1;
-                var swap=this.docker.getContainer(Id);
-                return swap.stop().then(()=>swap.remove()).then(()=>swap)
-            })
-    }
     StopContainers(Name){
         return this.GetContainerID(Name)
             .then((ID)=>{
@@ -285,4 +232,6 @@ module.exports=class DevEnvDocker {
                 return swap;
             })
     }
+    RemovePortainer(){await this.RemoveContainer(this.PortainerName)}
+    RemoveTraefik(){await this.RemoveContainer(this.Traefikname)}
 }

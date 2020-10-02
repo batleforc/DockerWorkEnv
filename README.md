@@ -27,3 +27,11 @@ Nodejs Exec cmd : https://nodejs.org/api/child_process.html
 Nodejs know Current Os : https://stackoverflow.com/questions/8683895/how-do-i-determine-the-current-operating-system-with-node-js
 
 Voir pour uttiliser GULP
+
+https://github.com/infinitered/gluegun/tree/master/docs
+
+https://github.com/lenneTech/cli-starter
+
+https://github.com/lenneTech/gluegun-menu
+
+https://infinitered.github.io/gluegun/#/?id=quick-start
