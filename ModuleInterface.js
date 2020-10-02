@@ -1,6 +1,6 @@
 var Docker = require('dockerode');
 var os = require('os');
-const {spawn,exec} = require('child_process');
+const {exec} = require('child_process');
 
 module.exports=class DevEnvDocker {
     constructor(SocketPath){
@@ -17,7 +17,7 @@ module.exports=class DevEnvDocker {
             stream.on('end', resolve)
             stream.on('error', reject)
         })
-
+        this.init()
     }
     init(){console.log(`
     /$$$$$$$                      /$$                           /$$$$$$$                      
@@ -119,11 +119,10 @@ module.exports=class DevEnvDocker {
         })
     }
     async StartTraefik(){
-        this.init();
         var value = await this.FindIndexContainerByName(this.Traefikname)
         if(value!=-1) {console.log("Container already started");return;}
         if(!await this.ImageExist(this.Traefikimg)) await this.pull(this.Traefikimg);
-        console.log("Creating Container")
+        console.log(`Creating Container ${this.Traefikname}`)
         await this.docker.createContainer({
             Image:this.Traefikimg,
             name:this.Traefikname,
@@ -143,20 +142,19 @@ module.exports=class DevEnvDocker {
             console.log("Error : "+err)
         })
         .then((container)=>{
-            console.log("Starting Container")
+            console.log(`Starting Container ${this.Traefikname}`)
             container.start();
         }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
         .then(()=>console.log(`Traefik is ready to rock \nPlease go to http://localhost:8080`))
     }
     async StartPortainer(){
-        this.init();
         var value = await this.FindIndexContainerByName(this.PortainerName)
         if(value!=-1) {console.log("Container already started");return;}
         if(!await this.ImageExist(this.PortainerImg)) await this.pull(this.PortainerImg);
         this.docker.createVolume({
             Name: "portainer_data"
         })
-        console.log("Creating Container")
+        console.log(`Creating Container ${this.PortainerName}`)
         await this.docker.createContainer({
                 Image:this.PortainerImg,
                 name: this.PortainerName,
@@ -180,19 +178,18 @@ module.exports=class DevEnvDocker {
             console.log("Error : "+err)
         })
         .then((container)=>{
-            console.log("Starting Container")
+            console.log(`Starting Container ${this.PortainerName}`)
             container.start();
         }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
         .then(()=>console.log(`Portainer is ready to rock \nPlease go to http://localhost:9000 or http://portainer.localhost if traefik is correctly configured\nPlease note that if it's the first time you may need to configure the container`))
-        console.log("test")
     }
 
     async LinkDns(IpAddress){
         this.init()
-        console.log(`Warning: If you are under wsl env please manualy change the dns server to ${IpAddress}, Your Os is recognise as ${process.platform}.`);
+        console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
-        if(process.platform=="linux"){
-            exec(`echo nameserver ${IpAddress} >> /etc/resolv.conf`,(error)=>{
+        if(process.platform.includes("linux")){
+            exec(`echo echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
                 if(error){
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
