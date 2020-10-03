@@ -27,10 +27,7 @@ module.exports=class DevEnvDocker {
    | $$  | $$| $$  \ $$| $$      | $$$$$$/ | $$$$$$$$| $$  \__/| $$  | $$| $$$$$$$$ \  $$/$$/ 
    | $$  | $$| $$  | $$| $$      | $$_  $$ | $$_____/| $$      | $$  | $$| $$_____/  \  $$$/  
    | $$$$$$$/|  $$$$$$/|  $$$$$$$| $$ \  $$|  $$$$$$$| $$      | $$$$$$$/|  $$$$$$$   \  $/   
-   |_______/  \______/  \_______/|__/  \__/ \_______/|__/      |_______/  \_______/    \_/    
-                                                                                              
-                                                                                              
-                                                                                              
+   |_______/  \______/  \_______/|__/  \__/ \_______/|__/      |_______/  \_______/    \_/   
    `)}
     pull(ImageName,tag='latest'){
         const promise1 = new Promise((resolve,reject)=>{
@@ -138,7 +135,6 @@ module.exports=class DevEnvDocker {
         }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
         .then(()=>console.log(`Portainer is ready to rock \nPlease go to http://localhost:9000 or http://portainer.localhost if traefik is correctly configured\nPlease note that if it's the first time you may need to configure the container`))
     }
-
     async LinkDns(){
         this.init()
         console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
@@ -183,7 +179,6 @@ module.exports=class DevEnvDocker {
             console.log("Your opperating system isn't supported yet")
         }
     }
-
     async ImageExist(name){
         const value = await this.docker.listImages()
         var exist=false;
@@ -232,6 +227,6 @@ module.exports=class DevEnvDocker {
                 return swap;
             })
     }
-    RemovePortainer(){await this.RemoveContainer(this.PortainerName)}
-    RemoveTraefik(){await this.RemoveContainer(this.Traefikname)}
+    async RemovePortainer(){await this.RemoveContainer(this.PortainerName)}
+    async RemoveTraefik(){await this.RemoveContainer(this.Traefikname)}
 }

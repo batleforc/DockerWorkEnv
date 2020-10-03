@@ -35,3 +35,7 @@ https://github.com/lenneTech/cli-starter
 https://github.com/lenneTech/gluegun-menu
 
 https://infinitered.github.io/gluegun/#/?id=quick-start
+
+cd dockerdev
+npm link
+dockerdev
