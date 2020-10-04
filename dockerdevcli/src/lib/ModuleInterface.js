@@ -11,15 +11,15 @@ module.exports=class DevEnvDocker {
         this.Traefikname="rp"
         this.PortainerImg="portainer/portainer-ce"
         this.PortainerName="portainer"
-        this.DnsSuffix=suffix;
+        this.DnsSuffix="localhost";
         this.promisifyStream = (stream) => new Promise((resolve, reject) => { 
             stream.on('data', (d) => console.log(d.toString()))
             stream.on('end', resolve)
             stream.on('error', reject)
         })
-        this.init()
+        DevEnvDocker.init()
     }
-    init(){console.log(`
+    static init(){console.log(`
     /$$$$$$$                      /$$                           /$$$$$$$                      
    | $$__  $$                    | $$                          | $$__  $$                     
    | $$  \ $$  /$$$$$$   /$$$$$$$| $$   /$$  /$$$$$$   /$$$$$$ | $$  \ $$  /$$$$$$  /$$    /$$
@@ -136,7 +136,6 @@ module.exports=class DevEnvDocker {
         .then(()=>console.log(`Portainer is ready to rock \nPlease go to http://localhost:9000 or http://portainer.localhost if traefik is correctly configured\nPlease note that if it's the first time you may need to configure the container`))
     }
     async LinkDns(){
-        this.init()
         console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform.includes("linux")){
