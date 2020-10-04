@@ -29,12 +29,12 @@ USAGE
 # Commands
 <!-- commands -->
 * [`dockerdevcli Init`](#dockerdevcli-init)
-* [`dockerdevcli Portainer`](#dockerdevcli-portainer)
+* [`dockerdevcli createandstart`](#dockerdevcli-createandstart)
 * [`dockerdevcli help [COMMAND]`](#dockerdevcli-help-command)
 
 ## `dockerdevcli Init`
 
-Describe the command here
+Start the DockerEnv (Start Traefik + insert nameserver to your /etc/hosts)
 
 ```
 USAGE
@@ -45,18 +45,17 @@ OPTIONS
 
 DESCRIPTION
   ...
-  Extra documentation goes here
 ```
 
 _See code: [src\commands\Init.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\Init.js)_
 
-## `dockerdevcli Portainer`
+## `dockerdevcli createandstart`
 
 Describe the command here
 
 ```
 USAGE
-  $ dockerdevcli Portainer
+  $ dockerdevcli createandstart
 
 OPTIONS
   -n, --name=name  name to print
@@ -66,7 +65,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src\commands\Portainer.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\Portainer.js)_
+_See code: [src\commands\createandstart.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\createandstart.js)_
 
 ## `dockerdevcli help [COMMAND]`
 
