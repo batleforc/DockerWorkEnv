@@ -4,6 +4,7 @@ var DevEnvDocker = require('../lib/ModuleInterface');
 class PortainerCommand extends Command {
   async run() {
     var Dev= new DevEnvDocker('/var/run/docker.sock');
+    Dev.StartPortainer();
 
   }
 }
