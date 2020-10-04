@@ -55,6 +55,10 @@ module.exports=class DevEnvDocker {
         return promise1;
     }
     CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder){
+        var value = await this.FindIndexContainerByName(ContainerName)
+        if(value!=-1) {console.log("Container already started");return;}
+        if(!await this.ImageExist(ImageName)) await this.pull(ImageName);
+        console.log(`Creating Container ${ContainerName}`)
         this.docker.container.create({
             Image : ImageName,
             name: String(ContainerName).toLowerCase(),
@@ -62,13 +66,18 @@ module.exports=class DevEnvDocker {
             ExposedPorts : ExposePort,
             HostConfig:{
                 Binds:Folder,
-                PortBindings: BindingPort
+                PortBindings:BindingPort
 
             }
-
+        }).catch((err)=>{
+            console.log("Error during the creation of the container")
+            console.log("Error : "+err)
         })
-        .then(container=>container.start())
-        .catch(error=>console.log(error))
+        .then((container)=>{
+            console.log(`Starting Container ${ContainerName}`)
+            container.start();
+        }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
+        .then(()=>console.log(`Container is started with the name ${ContainerName} and the image ${ImageName}`))
     }
     async StartTraefik(){
         var value = await this.FindIndexContainerByName(this.Traefikname)
