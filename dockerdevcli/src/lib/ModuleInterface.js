@@ -144,7 +144,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
+                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -157,7 +157,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
+                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -169,7 +169,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`ping ${this.Traefikname}.${this.DnsSuffix}`,(error)=>{
+                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
