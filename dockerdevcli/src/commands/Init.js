@@ -10,13 +10,12 @@ class HelloCommand extends Command {
   }
 }
 
-HelloCommand.description = `Describe the command here
+HelloCommand.description = `Start the DockerEnv (Start Traefik + insert nameserver to your /etc/hosts)
 ...
-Extra documentation goes here
 `
 
 HelloCommand.flags = {
-  name: flags.string({char: 'n', description: 'name to print'}),r
+  name: flags.string({char: 'n', description: 'name to print'}),
 }
 
 module.exports = HelloCommand
