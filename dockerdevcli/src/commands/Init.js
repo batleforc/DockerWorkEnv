@@ -6,6 +6,14 @@ var DevEnvDocker = require('../lib/ModuleInterface');
 class HelloCommand extends Command {
   async run() {
     const {flags} = this.parse(HelloCommand)
+    var Dev= new DevEnvDocker('/var/run/docker.sock');
+    if(flags.Start)
+      await Dev.StartContainer(Dev.Traefikname);
+    else if (flags.Stop)
+      await Dev.StopContainers(Dev.Traefikname);
+    else
+      await Dev.StartTraefik();
+    await Dev.LinkDns();
     
   }
 }
@@ -15,7 +23,8 @@ HelloCommand.description = `Start the DockerEnv (Start Traefik + insert nameserv
 `
 
 HelloCommand.flags = {
-  name: flags.string({char: 'n', description: 'name to print'}),
+  Start : flags.boolean({char:'u',description:'Start Portainer'}),
+  Stop : flags.boolean({char:'d',description:'Stop Portainer'}),
 }
 
 module.exports = HelloCommand
