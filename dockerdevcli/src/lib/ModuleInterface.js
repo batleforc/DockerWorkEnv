@@ -148,12 +148,12 @@ module.exports=class DevEnvDocker {
         console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform.includes("linux")){
-            exec(`echo echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
+            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
                 if(error){
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
+                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -161,12 +161,12 @@ module.exports=class DevEnvDocker {
             
         }
         else if(process.platform.includes("darwin")){
-            exec(`echo echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
+            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
                 if(error){
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
+                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -178,7 +178,7 @@ module.exports=class DevEnvDocker {
                     console.log("You need to try again with Sudo Right")
                     console.log(error)
                 }else{
-                    exec(`curl ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
+                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
                         if(error) console.log(error)
                     })
                 }
@@ -218,10 +218,27 @@ module.exports=class DevEnvDocker {
                 .then(()=>swap);
             })
     }
+    StartContainer(Name){
+        return this.GetContainerID(Name)
+            .then((ID)=>{
+                console.log(ID)
+                var swap
+                if(ID==-1) return;
+                //swap=this.docker.getContainer()
+                //else
+                swap=this.docker.getContainer(ID);
+                return swap.start()
+                .then(()=>swap);
+            })
+    }
     RemoveContainer(Name){
         return this.StopContainers(Name)
-            .then((ID)=>{
+            .then(async(ID)=>{
                 if(ID==-1)return;
+                if(ID==undefined){
+                   var swap = await this.docker.getContainer(Name);
+                   swap.remove();
+                }
                 var swap=this.docker.getContainer(ID);
                 swap.remove()
                 return swap;
