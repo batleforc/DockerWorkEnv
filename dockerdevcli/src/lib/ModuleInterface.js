@@ -4,7 +4,7 @@ const {exec} = require('child_process');
 
 module.exports=class DevEnvDocker {
     constructor(SocketPath){
-        this.docker = new Docker({socketPath:SocketPath});
+        this.docker = new Docker({socketPath:SocketPath})
         this.socketPath=SocketPath;
         this.DockerDns="ruudud/devdns"
         this.Traefikimg="traefik"
@@ -54,7 +54,7 @@ module.exports=class DevEnvDocker {
         })
         return promise1;
     }
-    CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder){
+    async CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder){
         var value = await this.FindIndexContainerByName(ContainerName)
         if(value!=-1) {console.log("Container already started");return;}
         if(!await this.ImageExist(ImageName)) await this.pull(ImageName);

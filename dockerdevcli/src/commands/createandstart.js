@@ -4,7 +4,7 @@ var DevEnvDocker = require('../lib/ModuleInterface');
 class CreateandstartCommand extends Command {
   async run() {
     const {flags} = this.parse(CreateandstartCommand)
-    if(flags[ContainerName]==null ||flags[ImageName]==null)
+    if(flags["ContainerName"]==null ||flags["ImageName"]==null)
       console.log("No ContainerName or ImageName indicated")
     const folder = [].push(flags.Folder||"")
     const Port ={
