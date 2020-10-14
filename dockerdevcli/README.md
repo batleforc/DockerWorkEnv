@@ -29,7 +29,9 @@ USAGE
 # Commands
 <!-- commands -->
 * [`dockerdevcli Init`](#dockerdevcli-init)
+* [`dockerdevcli Portainer`](#dockerdevcli-portainer)
 * [`dockerdevcli createandstart`](#dockerdevcli-createandstart)
+* [`dockerdevcli glabrunner`](#dockerdevcli-glabrunner)
 * [`dockerdevcli help [COMMAND]`](#dockerdevcli-help-command)
 
 ## `dockerdevcli Init`
@@ -41,7 +43,8 @@ USAGE
   $ dockerdevcli Init
 
 OPTIONS
-  -n, --name=name  name to print
+  -d, --Stop   Stop Portainer
+  -u, --Start  Start Portainer
 
 DESCRIPTION
   ...
@@ -49,13 +52,52 @@ DESCRIPTION
 
 _See code: [src\commands\Init.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\Init.js)_
 
+## `dockerdevcli Portainer`
+
+Start Portainer container
+
+```
+USAGE
+  $ dockerdevcli Portainer
+
+OPTIONS
+  -d, --Stop   Stop Portainer
+  -u, --Start  Start Portainer
+
+DESCRIPTION
+  ...
+```
+
+_See code: [src\commands\Portainer.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\Portainer.js)_
+
 ## `dockerdevcli createandstart`
+
+Create a container with the image you have choosed 
+
+```
+USAGE
+  $ dockerdevcli createandstart
+
+OPTIONS
+  -c, --ContainerName=ContainerName  name of the container
+  -f, --Folder=Folder                Folder to bind (Please remember to pass the fullpath)
+  -i, --ImageName=ImageName          name of the image
+  -p, --Port=Port                    Exposed port
+
+DESCRIPTION
+  ...
+  Create a container with the choosen image,name, port and working folder (Remember to pass the fullpath to the folder)
+```
+
+_See code: [src\commands\createandstart.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\createandstart.js)_
+
+## `dockerdevcli glabrunner`
 
 Describe the command here
 
 ```
 USAGE
-  $ dockerdevcli createandstart
+  $ dockerdevcli glabrunner
 
 OPTIONS
   -n, --name=name  name to print
@@ -65,7 +107,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src\commands\createandstart.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\createandstart.js)_
+_See code: [src\commands\glabrunner.js](https://github.com/batleforc/dockerdevcli/blob/v0.0.1/src\commands\glabrunner.js)_
 
 ## `dockerdevcli help [COMMAND]`
 
