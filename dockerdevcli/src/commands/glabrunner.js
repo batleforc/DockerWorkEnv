@@ -4,8 +4,8 @@ var DevEnvDocker = require('../lib/ModuleInterface');
 class GlabrunnerCommand extends Command {
   async run() {
     const {flags} = this.parse(GlabrunnerCommand)
-    var Dev= new DevEnvDocker('/var/run/docker.sock');
     const folder = [].push(flags.Folder||"")
+    var Dev= new DevEnvDocker('/var/run/docker.sock');
     if(flags.Start)
       await Dev.StartContainer(Dev.PortainerName);
     else if (flags.Stop)
