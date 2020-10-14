@@ -40,11 +40,11 @@ module.exports=class DevEnvDocker {
                     resolve()
                 }
                 
-                function onFinished(err, output) {
-                    if (!err) {
+                function onFinished(err2, output) {
+                    if (!err2) {
                         console.log('\nDone pulling.');
                     } else {
-                        console.log(err);
+                        console.log(err2);
                     }
                     resolve();
                 }
@@ -54,13 +54,13 @@ module.exports=class DevEnvDocker {
         })
         return promise1;
     }
-    async CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder){
+    async CreateAndStart(ImageName,ContainerName,ExposePort,BindingPort,Folder,ImageTag="Latest"){
         var value = await this.FindIndexContainerByName(ContainerName)
         if(value!=-1) {console.log("Container already started");return;}
-        if(!await this.ImageExist(ImageName)) await this.pull(ImageName);
+        if(!await this.ImageExist(ImageName)||ImageTag!="Latest") await this.pull(ImageName,ImageTag);
         console.log(`Creating Container ${ContainerName}`)
         this.docker.container.create({
-            Image : ImageName,
+            Image : ImageTag=="Latest"?ImageName:`${ImageName}:${ImageTag}`,
             name: String(ContainerName).toLowerCase(),
             Hostname : ContainerName,
             ExposedPorts : ExposePort,
@@ -77,7 +77,7 @@ module.exports=class DevEnvDocker {
             console.log(`Starting Container ${ContainerName}`)
             container.start();
         }).catch((err)=>console.log("Error during the start of the container \nError:"+err))
-        .then(()=>console.log(`Container is started with the name ${ContainerName} and the image ${ImageName}`))
+        .then(()=>console.log(`Container is started with the name ${ContainerName} and the image ${ImageName}, Your container is accesible at ${ContainerName}.localhost if Traefik is started or else run dockerdevcli`))
     }
     async StartTraefik(){
         var value = await this.FindIndexContainerByName(this.Traefikname)
@@ -149,39 +149,18 @@ module.exports=class DevEnvDocker {
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform.includes("linux")){
             exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
-                if(error){
-                    console.log("You need to try again with Sudo Right")
-                    console.log(error)
-                }else{
-                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
-                        if(error) console.log(error)
-                    })
-                }
+               this.AfterInput(error)
             })
             
         }
         else if(process.platform.includes("darwin")){
-            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
-                if(error){
-                    console.log("You need to try again with Sudo Right")
-                    console.log(error)
-                }else{
-                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
-                        if(error) console.log(error)
-                    })
-                }
+            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{ //Provisoire en attente de test sous mac
+                this.AfterInput(error);
             })
         }
         else if(process.platform.includes("win")){
             exec('echo 127.0.0.1 *.localhost >> c:\\Windows\\System32\\drivers\\etc\\hosts',(error)=>{
-                if(error){
-                    console.log("You need to try again with Sudo Right")
-                    console.log(error)
-                }else{
-                    exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error)=>{
-                        if(error) console.log(error)
-                    })
-                }
+                this.AfterInput(error)
             })
         }else{
             console.log("Your opperating system isn't supported yet")
@@ -191,11 +170,21 @@ module.exports=class DevEnvDocker {
         const value = await this.docker.listImages()
         var exist=false;
         value.forEach(element => {
-            if(String(element.RepoTags[0]).includes(name))
-            exist = true;
+            if (String(element.RepoTags[0]).includes(name))
+                exist = true;
         },this);
         return exist
         
+    }
+    AfterInput(error){
+        if(error){
+            console.log("You need to try again with Sudo Right")
+            console.log(error)
+        }else{
+            exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error2)=>{
+                if(error2) console.log(error2)
+            })
+        }
     }
     FindIndexContainerByName(Name){
         return this.docker.listContainers()
@@ -235,11 +224,13 @@ module.exports=class DevEnvDocker {
         return this.StopContainers(Name)
             .then(async(ID)=>{
                 if(ID==-1)return;
+                var swap
                 if(ID==undefined){
-                   var swap = await this.docker.getContainer(Name);
-                   swap.remove();
+                    swap = await this.docker.getContainer(Name);
                 }
-                var swap=this.docker.getContainer(ID);
+                else{
+                    swap=this.docker.getContainer(ID);
+                }
                 swap.remove()
                 return swap;
             })
