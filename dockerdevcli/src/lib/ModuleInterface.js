@@ -66,7 +66,10 @@ module.exports=class DevEnvDocker {
             ExposedPorts : ExposePort,
             HostConfig:{
                 Binds:Folder,
-                PortBindings:BindingPort
+                PortBindings:BindingPort,
+                RestartPolicy:{
+                    "Name":"always"
+                }
 
             }
         }).catch((err)=>{
@@ -95,6 +98,9 @@ module.exports=class DevEnvDocker {
                     }],'8080/tcp' :[{
                         HostPort:'8080'
                     }],
+                },
+                RestartPolicy:{
+                    "Name":"always"
                 }
             },
             ExposedPorts : {"8080/tcp":{},"80/tcp":{}},
@@ -129,6 +135,9 @@ module.exports=class DevEnvDocker {
                             HostPort: '9000',
                         }],
                     },
+                    RestartPolicy:{
+                        "Name":"always"
+                    }
                 },
                 Volumes:{
                     "portainer_data/data":{}
