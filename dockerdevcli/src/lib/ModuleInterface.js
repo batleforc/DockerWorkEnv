@@ -1,6 +1,7 @@
 var Docker = require('dockerode');
 var os = require('os');
 const {exec} = require('child_process');
+var fs = require('fs')
 
 module.exports=class DevEnvDocker {
     constructor(SocketPath){
@@ -30,8 +31,11 @@ module.exports=class DevEnvDocker {
    |_______/  \______/  \_______/|__/  \__/ \_______/|__/      |_______/  \_______/    \_/   
    `)}
     pull(ImageName,tag='latest'){
+        var image
+        if(ImageName.includes(':')!=-1) image =ImageName
+        else image = `${ImageName}:${tag}`
         const promise1 = new Promise((resolve,reject)=>{
-            this.docker.pull(`${ImageName}:${tag}`, (err, stream) => {
+            this.docker.pull(image, (err, stream) => {
                 if(err) return resolve(err);
                 try{
                     this.docker.modem.followProgress(stream, onFinished, onProgress);
@@ -59,7 +63,7 @@ module.exports=class DevEnvDocker {
         if(value!=-1) {console.log("Container already started");return;}
         if(!await this.ImageExist(ImageName)||ImageTag!="Latest") await this.pull(ImageName,ImageTag);
         console.log(`Creating Container ${ContainerName}`)
-        this.docker.container.create({
+        this.docker.createContainer({
             Image : ImageTag=="Latest"?ImageName:`${ImageName}:${ImageTag}`,
             name: String(ContainerName).toLowerCase(),
             Hostname : ContainerName,
@@ -157,20 +161,13 @@ module.exports=class DevEnvDocker {
         console.log(`Warning: If you are under wsl env please execute the LinkDns script as admin under cmd or powershell, Your Os is recognise as ${process.platform}.`);
         console.log(`Welcome ${os.userInfo().username}`)
         if(process.platform.includes("linux")){
-            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{
-               this.AfterInput(error)
-            })
-            
+            this.ifexistputin('/etc/hosts')
         }
         else if(process.platform.includes("darwin")){
-            exec(`echo 127.0.0.1 *.localhost >> /etc/hosts`,(error)=>{ //Provisoire en attente de test sous mac
-                this.AfterInput(error);
-            })
+            this.ifexistputin('/etc/hosts') //Provisoire en attente de test
         }
         else if(process.platform.includes("win")){
-            exec('echo 127.0.0.1 *.localhost >> c:\\Windows\\System32\\drivers\\etc\\hosts',(error)=>{
-                this.AfterInput(error)
-            })
+            this.ifexistputin('c:\\Windows\\System32\\drivers\\etc\\hosts')
         }else{
             console.log("Your opperating system isn't supported yet")
         }
@@ -185,13 +182,28 @@ module.exports=class DevEnvDocker {
         return exist
         
     }
+    async ifexistputin(path){
+        fs.readFile(path,(err,data)=>{
+            if(err) console.log(`Can't access the file ${path}`);
+            var dnsredirect='127.0.0.1 *.localhost'
+            if(data.indexOf(dnsredirect)==-1){
+                fs.appendFile(path,dnsredirect,err=>{
+                    this.AfterInput(err)
+                })
+            }
+            else{
+                this.AfterInput(err)
+            }
+        })
+    }
     AfterInput(error){
         if(error){
             console.log("You need to try again with Sudo Right")
             console.log(error)
         }else{
-            exec(`curl -L ${this.Traefikname}.${this.DnsSuffix}:8080`,(error2)=>{
-                if(error2) console.log(error2)
+            exec(`curl -L ${this.DnsSuffix}:80`,(error2)=>{
+                if(error2) return console.log(error2)
+                console.log("It works")
             })
         }
     }
@@ -238,18 +250,18 @@ module.exports=class DevEnvDocker {
                     swap = await this.docker.getContainer(Name);
                 }
                 else{
-                    swap=this.docker.getContainer(ID);
+                    swap=this.docker.getContainer(ID)
                 }
                 swap.remove()
-                return swap;
+                return swap
             })
     }
     GetContainer(Name){
         return this.GetContainerID(Name)
             .then((ID)=>{
-                if(ID==-1) return;
-                var swap = this.docker.getContainer(ID);
-                return swap;
+                if(ID==-1) return
+                var swap = this.docker.getContainer(ID)
+                return swap
             })
     }
     async RemovePortainer(){await this.RemoveContainer(this.PortainerName)}

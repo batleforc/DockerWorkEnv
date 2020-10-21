@@ -6,15 +6,18 @@ class CreateandstartCommand extends Command {
     const {flags} = this.parse(CreateandstartCommand)
     if(flags["ContainerName"]==null ||flags["ImageName"]==null)
       console.log("No ContainerName or ImageName indicated")
-    const folder = [].push(flags.Folder||"")
-    const Port ={
-      [`${flags.Port}/tcp`]:[{
-          HostPort:flags.Port
-      }]
-  }
+    const folder = flags.Folder?[].push(flags.Folder):null
+    var Port= {}, ExposedPort = {}
+    if(flags.Port){
+      Port ={
+        [flags.Port+"/tcp"]:[{
+            HostPort:flags.Port
+        }]
+      };
+      ExposedPort = {[flags.Port+"/tcp"]:{}};
+    }
   var Dev= new DevEnvDocker('/var/run/docker.sock');
-    Dev.CreateAndStart(flags.ImageName,flags.ContainerName,Port,Port,folder)
-  
+    Dev.CreateAndStart(flags.ImageName,flags.ContainerName,ExposedPort,Port,folder)
   }
 }
 
