@@ -23,8 +23,9 @@ Extra documentation goes here
 GlabrunnerCommand.flags = {
   ContainerName: flags.string({char:'c',description:'name of the GitlabRunner'}),
   Folder:flags.string({char:'f',description:'Folder to bind (Please remember to pass the fullpath)'}),
-  Start : flags.boolean({char:'u',description:'Start Portainer'}),
-  Stop : flags.boolean({char:'d',description:'Stop Portainer'}),
+  Start : flags.boolean({char:'u',description:'Start glabrunner'}),
+  Stop : flags.boolean({char:'d',description:'Stop glabrunner'}),
+  Conf: flags.boolean({char:'o',description:"Configuration"})
 }
 
 module.exports = GlabrunnerCommand
